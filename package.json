@@ -9,11 +9,11 @@
     "discord.js": "^12.3.1"
   },
   "engines": {
-    "node": "10.x"
+    "node": "12.x"
   },
   "keywords": [],
   "author": "neofutur",
-  "license": "ISC",
+  "license": "GPL",
   "devDependencies": {},
   "description": ""
 }
