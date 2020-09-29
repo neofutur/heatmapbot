@@ -79,16 +79,25 @@ client.on("message", async message => {
  
   // this is the main command, hm for heatmap
   if(command === "hm") {
+   var timeframe = 5;
+   if (!args.length) { timeframe = 5; }
+   else { timeframe = parseInt(args[0], 10); }
+
+  console.log(`timeframe : ${timeframe} `);
+	  
    // we have to add a timestamp to the URL so that discord does not cache the image
    const d = Math.floor(Date.now() / 1000);
    const datenow = new Date();
    const dateutc = datenow.toUTCString();
 
-   const hm = "http://neoxena.ww7.be/heatmap_5m.png" + "?t=" + d;
+   //const hm = "http://neoxena.ww7.be/heatmap_5m.png" + "?t=" + d;
+   const hm = `http://neoxena.ww7.be/heatmap_${timeframe}m.png` + "?t=" + d;
+  console.log(`file : ${hm} `);
+
    // building the embed that will be posted
    const HMEmbed = new Discord.MessageEmbed()
 	.setColor('#0099ff')
-	.addField('Bitcoinwisdom aggregated heatmap 5m timeframe', dateutc, true)
+	.addField(`Bitcoinwisdom aggregated heatmap ${timeframe}m timeframe`, dateutc, true)
 	.setImage( hm)
 	.setTimestamp()
 	.setFooter('Source : Bitcoinwisdom : https://bitcoinwisdom.io/the-heatmap', 'https://bitcoinwisdom.io/apple-touch-icon-180x180.png');
