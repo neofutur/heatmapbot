@@ -41,7 +41,8 @@ setInterval(() => {
 	          .setTimestamp()
 	          .setFooter('Source : Bitcoinwisdom : https://bitcoinwisdom.io/the-heatmap', 'https://bitcoinwisdom.io/apple-touch-icon-180x180.png');
   // TODO : the number is the discord channel id , should be in the config file
-  client.channels.cache.get("760145727061622815").send(HMEmbed);
+  //client.channels.cache.get("760145727061622815").send(HMEmbed);
+  client.channels.cache.get(config.channelid).send(HMEmbed);
         }, 900000); // Runs this every 10 seconds.
 });
 
