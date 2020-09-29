@@ -14,4 +14,6 @@ join with this link : https://discord.gg/X84Uvf
 
  the generateheatmap folder contains the puppeteer code used to generate the bitcoinwisdom agregated heatmap screenshot
 
+ you can invite the bt to your own server/channel  with this link : 
+https://discord.com/oauth2/authorize?client_id=760149527369482280&scope=bot&permissions=8
 
