@@ -16,8 +16,6 @@ function delay(time) {
 	  await page.waitForSelector('#wrapper');          // wait for the selector to load
 	  const element = await page.$('#wrapper');        // declare a variable with an ElementHandle
 	  await element.screenshot({path: 'heatmap.png'}); // take screenshot element in puppeteer
-
-	  //await page.screenshot({path: 'heatmap.png'});
 	  await browser.close();
 })();
 
