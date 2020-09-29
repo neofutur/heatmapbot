@@ -2,6 +2,8 @@
 discord js bot displaying the agregated heatmap from bitcoinwisdom.io
 
 * will answer to the +hm command everywhere
+* as a default it will use 15m timeframe, but you can specify 5, 15, 30, 60 or 240.
+example +hm 240 will ask for the 4h ( 240 m ) timeframe
 * will autopost every X minutes ( parameter in the json config file ) 
 on a dedicated channel ( channelid in the config file 
 * you need to put your own, valid discord bot token in the config file, find it on :
