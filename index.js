@@ -15,18 +15,9 @@ const client = new Discord.Client();
 const config = require("./config.json");
 // config.token contains the bot's token
 // config.prefix contains the message prefix.
+
+// the heatmap screenshot here is generated with a puppeteer headless chromium
 const newheatmap = "http://neoxena.ww7.be/heatmap.png";
-
-
-
-/*
-client.on('ready', () => {
-    setInterval(() => {
-	const heatmap = "http://neoxena.ww7.be/heatmap.png";
-	message.channel.send("http://neoxena.ww7.be/heatmap.png");
-		        }, 10000); // Runs this every 10 seconds.
-});
-*/
 
 client.on("ready", () => {
   // This event will run if the bot starts, and logs in, successfully.
@@ -34,26 +25,24 @@ client.on("ready", () => {
   // Example of changing the bot's playing game to something useful. `client.user` is what the
   // docs refer to as the "ClientUser".
   client.user.setActivity(`Serving ${client.guilds.cache.size} servers`);
-  setInterval(() => {
+
+  // this is the code to autopost the heatmap every X minutes on a dedicated channel 
+setInterval(() => {
+   // we have to add a timestamp to the URL so that discord does not cache the image
    const d = Math.floor(Date.now() / 1000);
   const hm = "http://neoxena.ww7.be/heatmap.png" + "?t=" + d;
    const datenow = new Date();
    const dateutc = datenow.toUTCString();
+  // building the embed that will be posted
   const HMEmbed = new Discord.MessageEmbed()
 	          .setColor('#0099ff')
 	          .addField('Bitcoinwisdom aggregated heatmap', dateutc, true)
 	          .setImage( hm)
 	          .setTimestamp()
 	          .setFooter('Source : Bitcoinwisdom : https://bitcoinwisdom.io/the-heatmap', 'https://bitcoinwisdom.io/apple-touch-icon-180x180.png');
-	     //message.channel.send("http://neoxena.ww7.be/heatmap.png");
-	  //   //message.channel.send(hm);
-	  //      message.channel.send(HMEmbed);
-	  //
-	  //
+  // TODO : the number is the discord channel id , should be in the config file
   client.channels.cache.get("760145727061622815").send(HMEmbed);
-  //channel.send(newheatmap);
         }, 900000); // Runs this every 10 seconds.
-
 });
 
 client.on("guildCreate", guild => {
@@ -67,7 +56,6 @@ client.on("guildDelete", guild => {
   console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`);
   client.user.setActivity(`Serving ${client.guilds.cache.size} servers`);
 });
-
 
 client.on("message", async message => {
   // This event will run on every single message received, from any channel or DM.
@@ -86,26 +74,28 @@ client.on("message", async message => {
   // args = ["Is", "this", "the", "real", "life?"]
   const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
-  
-  // Let's go with a few common example commands! Feel free to delete or change those.
+ 
+  // this is the main command, hm for heatmap
   if(command === "hm") {
+   // we have to add a timestamp to the URL so that discord does not cache the image
    const d = Math.floor(Date.now() / 1000);
    const datenow = new Date();
    const dateutc = datenow.toUTCString();
 
    const hm = "http://neoxena.ww7.be/heatmap.png" + "?t=" + d;
+   // building the embed that will be posted
    const HMEmbed = new Discord.MessageEmbed()
 	.setColor('#0099ff')
 	.addField('Bitcoinwisdom aggregated heatmap', dateutc, true)
 	.setImage( hm)
 	.setTimestamp()
 	.setFooter('Source : Bitcoinwisdom : https://bitcoinwisdom.io/the-heatmap', 'https://bitcoinwisdom.io/apple-touch-icon-180x180.png');
-   //message.channel.send("http://neoxena.ww7.be/heatmap.png");
-   //message.channel.send(hm);
    message.channel.send(HMEmbed);
-	  
   }
-  
+ 
+  // TODO : most of the following example commands should soon be removed
+	
+  // Let's go with a few common example commands! Feel free to delete or change those.
   if(command === "ping") {
     // Calculates ping between sending a message and editing it, giving a nice round-trip latency.
     // The second ping is an average latency between the bot and the websocket server (one-way, not round-trip)
