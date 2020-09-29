@@ -31,13 +31,13 @@ client.on("ready", () => {
 setInterval(() => {
    // we have to add a timestamp to the URL so that discord does not cache the image
    const d = Math.floor(Date.now() / 1000);
-  const hm = "http://neoxena.ww7.be/heatmap.png" + "?t=" + d;
+  const hm = "http://neoxena.ww7.be/heatmap_5m.png" + "?t=" + d;
    const datenow = new Date();
    const dateutc = datenow.toUTCString();
   // building the embed that will be posted
   const HMEmbed = new Discord.MessageEmbed()
 	          .setColor('#0099ff')
-	          .addField('Bitcoinwisdom aggregated heatmap', dateutc, true)
+	          .addField('Bitcoinwisdom aggregated heatmap 5m timeframe', dateutc, true)
 	          .setImage( hm)
 	          .setTimestamp()
 	          .setFooter('Source : Bitcoinwisdom : https://bitcoinwisdom.io/the-heatmap', 'https://bitcoinwisdom.io/apple-touch-icon-180x180.png');
@@ -84,11 +84,11 @@ client.on("message", async message => {
    const datenow = new Date();
    const dateutc = datenow.toUTCString();
 
-   const hm = "http://neoxena.ww7.be/heatmap.png" + "?t=" + d;
+   const hm = "http://neoxena.ww7.be/heatmap_5m.png" + "?t=" + d;
    // building the embed that will be posted
    const HMEmbed = new Discord.MessageEmbed()
 	.setColor('#0099ff')
-	.addField('Bitcoinwisdom aggregated heatmap', dateutc, true)
+	.addField('Bitcoinwisdom aggregated heatmap 5m timeframe', dateutc, true)
 	.setImage( hm)
 	.setTimestamp()
 	.setFooter('Source : Bitcoinwisdom : https://bitcoinwisdom.io/the-heatmap', 'https://bitcoinwisdom.io/apple-touch-icon-180x180.png');
