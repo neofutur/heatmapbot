@@ -1,5 +1,6 @@
 { 
 	  "token"  : "INSERT YOUR OWN DISCORD CHANNEL BOT TOKEN HERE             ",
 	  "prefix" : "+",
-	  "channelid" : "put your channel id here"
+	  "channelid" : "put your channel id here",
+	  "posteveryXmins" : "15"
 }

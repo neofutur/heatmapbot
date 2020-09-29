@@ -18,6 +18,7 @@ const config = require("./config.json");
 
 // the heatmap screenshot here is generated with a puppeteer headless chromium
 const newheatmap = "http://neoxena.ww7.be/heatmap.png";
+const  intervalmilliseconds = config.posteveryXmins * 60000; 
 
 client.on("ready", () => {
   // This event will run if the bot starts, and logs in, successfully.
@@ -40,10 +41,10 @@ setInterval(() => {
 	          .setImage( hm)
 	          .setTimestamp()
 	          .setFooter('Source : Bitcoinwisdom : https://bitcoinwisdom.io/the-heatmap', 'https://bitcoinwisdom.io/apple-touch-icon-180x180.png');
-  // TODO : the number is the discord channel id , should be in the config file
-  //client.channels.cache.get("760145727061622815").send(HMEmbed);
+   // 60000 milliseconds in 1 minute
+
   client.channels.cache.get(config.channelid).send(HMEmbed);
-        }, 900000); // Runs this every 10 seconds.
+        }, intervalmilliseconds); // Runs this every X milliseconds.
 });
 
 client.on("guildCreate", guild => {
