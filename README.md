@@ -10,7 +10,7 @@ on a dedicated channel ( channelid in the config file
  https://discord.com/developers/applications/
 
 you can test the current alpha version of the bot on the #bot channel on the neoskills discord server : 
-join with this link : https://discord.gg/X84Uvf 
+join with this link : https://discord.gg/ju5q6XK
 
  the generateheatmap folder contains the puppeteer code used to generate the bitcoinwisdom agregated heatmap screenshot
 
