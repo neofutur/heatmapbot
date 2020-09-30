@@ -17,7 +17,6 @@ const config = require("./config.json");
 // config.prefix contains the message prefix.
 
 // the heatmap screenshot here is generated with a puppeteer headless chromium
-const newheatmap = "http://neoxena.ww7.be/heatmap.png";
 const  intervalmilliseconds = config.posteveryXmins * 60000; 
 
 client.on("ready", () => {

@@ -1,196 +1,116 @@
-// Load up the discord.js library
-const Discord = require("discord.js");
-
-/*
- DISCORD.JS VERSION 12 CODE
-*/
-
-
-// This is your client. Some people call it `bot`, some people call it `self`, 
-// some might call it `cootchie`. Either way, when you see `client.something`, or `bot.something`,
-// this is what we're refering to. Your client.
-const client = new Discord.Client();
+const puppeteer = require('puppeteer');
+const select = require ('puppeteer-select');
 
 // Here we load the config.json file that contains our token and our prefix values. 
 const config = require("./config.json");
-// config.token contains the bot's token
-// config.prefix contains the message prefix.
+const mapfolder = config.mapfolder;
 
-// the heatmap screenshot here is generated with a puppeteer headless chromium
-const newheatmap = "http://neoxena.ww7.be/heatmap.png";
-const  intervalmilliseconds = config.posteveryXmins * 60000; 
 
-client.on("ready", () => {
-  // This event will run if the bot starts, and logs in, successfully.
-  console.log(`Bot has started, with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.`);
-  // Example of changing the bot's playing game to something useful. `client.user` is what the
-  // docs refer to as the "ClientUser".
-  client.user.setActivity(`Serving ${client.guilds.cache.size} servers`);
+function delay(time) {
+	   return new Promise(function(resolve) { 
+		          setTimeout(resolve, time)
+		      });
+}
 
-  // this is the code to autopost the heatmap every X minutes on a dedicated channel 
-setInterval(() => {
-   // we have to add a timestamp to the URL so that discord does not cache the image
-   const d = Math.floor(Date.now() / 1000);
-  const hm = "http://neoxena.ww7.be/heatmap_5m.png" + "?t=" + d;
-   const datenow = new Date();
-   const dateutc = datenow.toUTCString();
-  // building the embed that will be posted
-  const HMEmbed = new Discord.MessageEmbed()
-	          .setColor('#0099ff')
-	          .addField('Bitcoinwisdom aggregated heatmap 5m timeframe', dateutc, true)
-	          .setImage( hm)
-	          .setTimestamp()
-	          .setFooter('Source : Bitcoinwisdom : https://bitcoinwisdom.io/the-heatmap', 'https://bitcoinwisdom.io/apple-touch-icon-180x180.png');
-   // 60000 milliseconds in 1 minute
+const escapeXpathString = str => {
+  const splitedQuotes = str.replace(/'/g, `', "'", '`);
+    return `concat('${splitedQuotes}', '')`;
+};
 
-  client.channels.cache.get(config.channelid).send(HMEmbed);
-        }, intervalmilliseconds); // Runs this every X milliseconds.
-});
+const clickByText = async function(page, text, element) {
+	    const elementa = element || 'a';
+	    const escapedText = escapeXpathString(text);
+	    xpath = `//${element}[text()[contains(., ${escapedText})]]`;
+	    await page.waitForXPath(xpath);
+	    const elements = await page.$x(xpath);
+	    if(elements.length > 0) {
+		            for(i in elements) {
+				                e = elements[i];
+				                if(await e.isIntersectingViewport()) {
+							                await e.click();
+							                return;
+							            }
+				            }
+		        }
+	    else {
+		            console.log(xpath);
+		        }
+	    throw new Error(`Link not found: ${text}`);
+};
 
-client.on("guildCreate", guild => {
-  // This event triggers when the bot joins a guild.
-  console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
-  client.user.setActivity(`Serving ${client.guilds.cache.size} servers`);
-});
-
-client.on("guildDelete", guild => {
-  // this event triggers when the bot is removed from a guild.
-  console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`);
-  client.user.setActivity(`Serving ${client.guilds.cache.size} servers`);
-});
-
-client.on("message", async message => {
-  // This event will run on every single message received, from any channel or DM.
-  
-  // It's good practice to ignore other bots. This also makes your bot ignore itself
-  // and not get into a spam loop (we call that "botception").
-  if(message.author.bot) return;
-  
-  // Also good practice to ignore any message that does not start with our prefix, 
-  // which is set in the configuration file.
-  if(!message.content.startsWith(config.prefix)) return;
-  
-  // Here we separate our "command" name, and our "arguments" for the command. 
-  // e.g. if we have the message "+say Is this the real life?" , we'll get the following:
-  // command = say
-  // args = ["Is", "this", "the", "real", "life?"]
-  const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
-  const command = args.shift().toLowerCase();
+/*
+const clickByText = async (page, text) => {
+  const escapedText = escapeXpathString(text);
+  const linkHandlers = await page.$x(`//a[contains(text(), ${escapedText})]`);
  
-  // this is the main command, hm for heatmap
-  if(command === "hm") {
-   var timeframe = 5;
-   if (!args.length) { timeframe = 5; }
-   else { timeframe = parseInt(args[0], 10); }
-
-  //console.log(`timeframe : ${timeframe} `);
-  if (!timeframe ) return;
-  if ( timeframe === 5 | timeframe === 15 | timeframe === 30 | timeframe === 60 | timeframe === 240 )
-  {
-   // we have to add a timestamp to the URL so that discord does not cache the image
-   const d = Math.floor(Date.now() / 1000);
-   const datenow = new Date();
-   const dateutc = datenow.toUTCString();
-
-   //const hm = "http://neoxena.ww7.be/heatmap_5m.png" + "?t=" + d;
-   const hm = `http://neoxena.ww7.be/heatmap_${timeframe}m.png` + "?t=" + d;
-   //console.log(`file : ${hm} `);
-
-   // building the embed that will be posted
-   const HMEmbed = new Discord.MessageEmbed()
-	.setColor('#0099ff')
-	.addField(`Bitcoinwisdom aggregated heatmap ${timeframe}m timeframe`, dateutc, true)
-	.setImage( hm)
-	.setTimestamp()
-	.setFooter('Source : Bitcoinwisdom : https://bitcoinwisdom.io/the-heatmap', 'https://bitcoinwisdom.io/apple-touch-icon-180x180.png');
-   message.channel.send(HMEmbed);
+  if (linkHandlers.length > 0) {
+        await linkHandlers[0].click();
+  } else {
+         throw new Error(`Link not found: ${text}`);
   }
- }
- 
-  // TODO : most of the following example commands should soon be removed
+};
+*/
+
+(async () => {
+	const browser = await puppeteer.launch({args: ['--no-sandbox']});
+	const page = await browser.newPage();
+	await page.setViewport({ width: 1920, height: 1080 });
+	await page.setDefaultNavigationTimeout(120000);
+	// https://bitcoinwisdom.io/the-heatmap?interval=60&clearStorage&notoolbar&grid_mode 
+	// link with timeframe in minutes
+	 
+	// generate 5m screenshot
+	//await page.goto('https://bitcoinwisdom.io/the-heatmap?interval=5&clearStorage&notoolbar&grid_mode', { waitUntil: 'networkidle0' });
+	await page.goto('https://bitcoinwisdom.io/the-heatmap?interval=5&clearStorage&notoolbar&grid_mode', { waitUntil: 'domcontentloaded' });
+	await delay(10000);
+	await page.waitForSelector('#wrapper');          // wait for the selector to load
+	var wrapper = await page.$('#wrapper');        // declare a variable with an ElementHandle
+	var mapfile = mapfolder + 'heatmap_5m.png';
+console.log(mapfile);
+	//await wrapper.screenshot({path: '/home/neoxena/public_html/heatmap_5m.png'}); // take screenshot element in puppeteer
+	await wrapper.screenshot({path: mapfile}); // take screenshot element in puppeteer
+	console.log(`5m generated`);
+
+	// generate 15m screenshot
+	await page.goto('https://bitcoinwisdom.io/the-heatmap?interval=15&clearStorage&notoolbar&grid_mode', { waitUntil: 'domcontentloaded' });
+	await delay(15000);
+	await page.waitForSelector('#wrapper');          // wait for the selector to load
+	wrapper = await page.$('#wrapper');        // declare a variable with an ElementHandle
+	mapfile = mapfolder + 'heatmap_15m.png';
+console.log(mapfile);
+	await wrapper.screenshot({path: mapfile}); // take screenshot element in puppeteer
+	console.log(`15m generated`);
 	
-  // Let's go with a few common example commands! Feel free to delete or change those.
-  if(command === "ping") {
-    // Calculates ping between sending a message and editing it, giving a nice round-trip latency.
-    // The second ping is an average latency between the bot and the websocket server (one-way, not round-trip)
-    const m = await message.channel.send("Ping?");
-    m.edit(`Pong! Latency is ${m.createdTimestamp - message.createdTimestamp}ms. API Latency is ${Math.round(client.ws.ping)}ms`);
-  }
-  
-  if(command === "say") {
-    // makes the bot say something and delete the message. As an example, it's open to anyone to use. 
-    // To get the "message" itself we join the `args` back into a string with spaces: 
-    const sayMessage = args.join(" ");
-    // Then we delete the command message (sneaky, right?). The catch just ignores the error with a cute smiley thing.
-    message.delete().catch(O_o=>{}); 
-    // And we get the bot to say the thing: 
-    message.channel.send(sayMessage);
-  }
-  
-  if(command === "kick") {
-    // This command must be limited to mods and admins. In this example we just hardcode the role names.
-    // Please read on Array.some() to understand this bit: 
-    // https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/some?
-    if(!message.member.roles.cache.some(r=>["Administrator", "Moderator"].includes(r.name)))
-      return message.reply("Sorry, you don't have permissions to use this!");
-    
-    // Let's first check if we have a member and if we can kick them!
-    // message.mentions.members is a collection of people that have been mentioned, as GuildMembers.
-    // We can also support getting the member by ID, which would be args[0]
-    let member = message.mentions.members.first() || message.guild.members.get(args[0]);
-    if(!member)
-      return message.reply("Please mention a valid member of this server");
-    if(!member.kickable) 
-      return message.reply("I cannot kick this user! Do they have a higher role? Do I have kick permissions?");
-    
-    // slice(1) removes the first part, which here should be the user mention or ID
-    // join(' ') takes all the various parts to make it a single string.
-    let reason = args.slice(1).join(' ');
-    if(!reason) reason = "No reason provided";
-    
-    // Now, time for a swift kick in the nuts!
-    await member.kick(reason)
-      .catch(error => message.reply(`Sorry ${message.author} I couldn't kick because of : ${error}`));
-    message.reply(`${member.user.tag} has been kicked by ${message.author.tag} because: ${reason}`);
-
-  }
-  
-  if(command === "ban") {
-    // Most of this command is identical to kick, except that here we'll only let admins do it.
-    // In the real world mods could ban too, but this is just an example, right? ;)
-    if(!message.member.roles.cache.some(r=>["Administrator"].includes(r.name)))
-      return message.reply("Sorry, you don't have permissions to use this!");
-    
-    let member = message.mentions.members.first();
-    if(!member)
-      return message.reply("Please mention a valid member of this server");
-    if(!member.bannable) 
-      return message.reply("I cannot ban this user! Do they have a higher role? Do I have ban permissions?");
-
-    let reason = args.slice(1).join(' ');
-    if(!reason) reason = "No reason provided";
-    
-    await member.ban(reason)
-      .catch(error => message.reply(`Sorry ${message.author} I couldn't ban because of : ${error}`));
-    message.reply(`${member.user.tag} has been banned by ${message.author.tag} because: ${reason}`);
-  }
-  
-  if(command === "purge") {
-    // This command removes all messages from all users in the channel, up to 100.
-    
-    // get the delete count, as an actual number.
-    const deleteCount = parseInt(args[0], 10);
-    
-    // Ooooh nice, combined conditions. <3
-    if(!deleteCount || deleteCount < 2 || deleteCount > 100)
-      return message.reply("Please provide a number between 2 and 100 for the number of messages to delete");
-    
-    // So we get our messages, and delete them. Simple enough, right?
-    const fetched = await message.channel.messages.fetch({limit: deleteCount});
-    message.channel.bulkDelete(fetched)
-      .catch(error => message.reply(`Couldn't delete messages because of: ${error}`));
-  }
-});
-
-client.login(config.token);
+	// generate 30m screenshot
+	await page.goto('https://bitcoinwisdom.io/the-heatmap?interval=30&clearStorage&notoolbar&grid_mode', { waitUntil: 'domcontentloaded' });
+	await delay(20000);
+	await page.waitForSelector('#wrapper');          // wait for the selector to load
+	wrapper = await page.$('#wrapper');        // declare a variable with an ElementHandle
+	mapfile = mapfolder + 'heatmap_30m.png';
+console.log(mapfile);
+	await wrapper.screenshot({path: mapfile}); // take screenshot element in puppeteer
+	console.log(`30m generated`);
+	  
+	// generate 1h screenshot
+	await page.goto('https://bitcoinwisdom.io/the-heatmap?interval=60&clearStorage&notoolbar&grid_mode', { waitUntil: 'domcontentloaded' });
+	await delay(25000);
+	await page.waitForSelector('#wrapper');          // wait for the selector to load
+	wrapper = await page.$('#wrapper');        // declare a variable with an ElementHandle
+	mapfile = mapfolder + 'heatmap_60m.png';
+console.log(mapfile);
+	await wrapper.screenshot({path: mapfile}); // take screenshot element in puppeteer
+	console.log(`1h generated`);
+	
+	// generate 4h screenshot
+	await page.goto('https://bitcoinwisdom.io/the-heatmap?interval=240&clearStorage&notoolbar&grid_mode', { waitUntil: 'domcontentloaded' });
+	await delay(30000);
+	await page.waitForSelector('#wrapper');          // wait for the selector to load
+	wrapper = await page.$('#wrapper');        // declare a variable with an ElementHandle
+	mapfile = mapfolder + 'heatmap_240m.png';
+console.log(mapfile);
+	await wrapper.screenshot({path: mapfile}); // take screenshot element in puppeteer
+	console.log(`4h generated`);
+	
+	await browser.close();
+})();
 
