@@ -28,9 +28,6 @@ client.on("ready", () => {
 
   // this is the code to autopost the heatmap every X minutes on a dedicated channel 
 setInterval(() => {
-   const imageBuffer = await request.get('http://neoxena.ww7.be/heatmap_5m.png')
-   const attachment = new Discord.MessageAttachment(imageBuffer, 'heatmap.png');
-
    // we have to add a timestamp to the URL so that discord does not cache the image
    const d = Math.floor(Date.now() / 1000);
   const hm = "http://neoxena.ww7.be/heatmap_5m.png" + "?t=" + d;
@@ -40,13 +37,13 @@ setInterval(() => {
   const HMEmbed = new Discord.MessageEmbed()
 	          .setColor('#0099ff')
 	          .addField('Bitcoinwisdom aggregated heatmap 5m timeframe', dateutc, true)
-		  .setImage('attachment://heatmap.png');
-//	          .setImage( hm)
+	          .setImage( hm)
 	          .setTimestamp()
 	          .setFooter('Source : Bitcoinwisdom : https://bitcoinwisdom.io/the-heatmap', 'https://bitcoinwisdom.io/apple-touch-icon-180x180.png');
    // 60000 milliseconds in 1 minute
-
+  //const cryptopolis = (client.guilds.cache.get('760587863477190686'));
   client.channels.cache.get(config.channelid).send(HMEmbed);
+  client.channels.cache.get("760587863477190686").send(HMEmbed);	
         }, intervalmilliseconds); // Runs this every X milliseconds.
 });
 
@@ -82,8 +79,8 @@ client.on("message", async message => {
  
   // this is the main command, hm for heatmap
   if(command === "hm") {
-   var timeframe = 5;
-   if (!args.length) { timeframe = 5; }
+   var timeframe = 15;
+   if (!args.length) { timeframe = 15; }
    else { timeframe = parseInt(args[0], 10); }
 
   //console.log(`timeframe : ${timeframe} `);
