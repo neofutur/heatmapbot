@@ -28,6 +28,9 @@ client.on("ready", () => {
 
   // this is the code to autopost the heatmap every X minutes on a dedicated channel 
 setInterval(() => {
+   const imageBuffer = await request.get('http://neoxena.ww7.be/heatmap_5m.png')
+   const attachment = new Discord.MessageAttachment(imageBuffer, 'heatmap.png');
+
    // we have to add a timestamp to the URL so that discord does not cache the image
    const d = Math.floor(Date.now() / 1000);
   const hm = "http://neoxena.ww7.be/heatmap_5m.png" + "?t=" + d;
@@ -37,7 +40,8 @@ setInterval(() => {
   const HMEmbed = new Discord.MessageEmbed()
 	          .setColor('#0099ff')
 	          .addField('Bitcoinwisdom aggregated heatmap 5m timeframe', dateutc, true)
-	          .setImage( hm)
+		  .setImage('attachment://heatmap.png');
+//	          .setImage( hm)
 	          .setTimestamp()
 	          .setFooter('Source : Bitcoinwisdom : https://bitcoinwisdom.io/the-heatmap', 'https://bitcoinwisdom.io/apple-touch-icon-180x180.png');
    // 60000 milliseconds in 1 minute
