@@ -53,7 +53,10 @@ const clickByText = async (page, text) => {
 
 (async () => {
 	const browser = await puppeteer.launch({args: ['--no-sandbox']});
-	const page = await browser.newPage();
+	// trying to bypass image cache
+	const context = await browser.createIncognitoBrowserContext();
+	const page = await context.newPage();
+	await page.setCacheEnabled(false);
 	await page.setViewport({ width: 1920, height: 1080 });
 	await page.setDefaultNavigationTimeout(120000);
 	// https://bitcoinwisdom.io/the-heatmap?interval=60&clearStorage&notoolbar&grid_mode 
@@ -62,7 +65,7 @@ const clickByText = async (page, text) => {
 	// generate 5m screenshot
 	//await page.goto('https://bitcoinwisdom.io/the-heatmap?interval=5&clearStorage&notoolbar&grid_mode', { waitUntil: 'networkidle0' });
 	await page.goto('https://bitcoinwisdom.io/the-heatmap?interval=5&clearStorage&notoolbar&grid_mode', { waitUntil: 'domcontentloaded' });
-	await delay(10000);
+	await delay(20000);
 	await page.waitForSelector('#wrapper');          // wait for the selector to load
 	var wrapper = await page.$('#wrapper');        // declare a variable with an ElementHandle
 	var mapfile = mapfolder + 'heatmap_5m.png';
@@ -73,7 +76,7 @@ console.log(mapfile);
 
 	// generate 15m screenshot
 	await page.goto('https://bitcoinwisdom.io/the-heatmap?interval=15&clearStorage&notoolbar&grid_mode', { waitUntil: 'domcontentloaded' });
-	await delay(15000);
+	await delay(20000);
 	await page.waitForSelector('#wrapper');          // wait for the selector to load
 	wrapper = await page.$('#wrapper');        // declare a variable with an ElementHandle
 	mapfile = mapfolder + 'heatmap_15m.png';
